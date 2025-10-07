@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Asesoría - Tutoriza</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/dashboard">Tutoriza</a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">{{ user.nombre }}</span>
+                <a href="/dashboard" class="btn btn-outline-light me-2">Inicio</a>
+                <a href="/logout" class="btn btn-outline-light">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Mostrar mensajes flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if 'error' in category else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="card asesoria-card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">{{ asesoria.tema }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="info-badge">
+                                    <strong>Fecha:</strong> {{ asesoria.fecha.strftime('%d/%m/%Y') }}
+                                </div>
+                                <div class="info-badge">
+                                    <strong>Duración:</strong> {{ asesoria.duracion }} horas
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-badge">
+                                    <strong>Solicitante:</strong> {{ asesoria.solicitante_nombre }} {{ asesoria.solicitante_apellido }}
+                                </div>
+                                <div class="info-badge">
+                                    <strong>Creado:</strong> {{ asesoria.created_at.strftime('%d/%m/%Y') }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if asesoria.notas %}
+                        <div class="alert alert-light mb-4">
+                            <strong>Notas:</strong><br>
+                            {{ asesoria.notas }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <strong>Tutor Actual:</strong>
+                            {% if asesoria.tutor_nombre %}
+                                <span class="badge bg-success">{{ asesoria.tutor_nombre }} {{ asesoria.tutor_apellido }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Sin asignar</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Cambiar tutor - Solo visible para el creador -->
+                        {% if asesoria.user_id == session.user_id %}
+                        <div class="mt-4 p-3 border rounded">
+                            <h5>Cambiar Tutor</h5>
+                            <form action="/asesorias/cambiar_tutor/{{ asesoria.id }}" method="POST">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8">
+                                        <label for="tutor_id" class="form-label">Nuevo Tutor</label>
+                                        <select class="form-select" name="tutor_id" id="tutor_id" required>
+                                            <option value="">Seleccionar tutor</option>
+                                            {% for tutor in tutores %}
+                                                <option value="{{ tutor.id }}" 
+                                                    {% if asesoria.tutor_id == tutor.id %}selected{% endif %}>
+                                                    {{ tutor.nombre }} {{ tutor.apellido }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="/dashboard" class="btn btn-secondary">Volver</a>
+                            
+                            <!-- Solo el creador puede editar y borrar -->
+                            {% if asesoria.user_id == session.user_id %}
+                                <a href="/asesorias/editar/{{ asesoria.id }}" class="btn btn-warning">Editar</a>
+                                <a href="/asesorias/eliminar/{{ asesoria.id }}" 
+                                   class="btn btn-danger" 
+                                   onclick="return confirm('¿Estás seguro de eliminar esta asesoría?')">Borrar</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

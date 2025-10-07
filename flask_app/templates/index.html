@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoriza - Inicio de Sesión y Registro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card login-card">
+                        <div class="card-body p-5">
+                            <!-- Mostrar mensajes flash -->
+                            {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        <div class="alert alert-{{ 'danger' if 'error' in category else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
+                            <div class="row" style="gap: 30px;">
+                                <!-- Formulario de Registro -->
+                                <div class="col-md-6" style="flex: 1;">
+                                    <h3 class="mb-4">Registro</h3>
+                                    
+                                    <form action="/register" method="POST">
+                                        <div class="mb-3">
+                                            <label for="nombre" class="form-label">Nombre</label>
+                                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="apellido" class="form-label">Apellido</label>
+                                            <input type="text" class="form-control" id="apellido" name="apellido" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="email_registro" class="form-label">E-mail</label>
+                                            <input type="email" class="form-control" id="email_registro" name="email" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Contraseña</label>
+                                            <input type="password" class="form-control" id="password" name="password" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="confirm_password" class="form-label">Conf. Contraseña</label>
+                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">Registrar</button>
+                                    </form>
+                                </div>
+                                
+                                <!-- Formulario de Inicio de Sesión -->
+                                <div class="col-md-6" style="flex: 1;">
+                                    <h3 class="mb-4">Inicio de Sesión</h3>
+                                    
+                                    <form action="/login" method="POST">
+                                        <div class="mb-3">
+                                            <label for="email_login" class="form-label">E-mail</label>
+                                            <input type="email" class="form-control" id="email_login" name="email" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="password_login" class="form-label">Contraseña</label>
+                                            <input type="password" class="form-control" id="password_login" name="password" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

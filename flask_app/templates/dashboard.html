@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Tutoriza</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/dashboard">Tutoriza</a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">Bienvenido, {{ user.nombre|capitalize }}</span>
+                <a href="/asesorias/nueva" class="btn btn-warning me-2">Solicitar Asesoría</a>
+                <a href="/logout" class="btn btn-outline-light">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Todas las Asesorías</h3>
+            </div>
+            <div class="card-body">
+                <!-- Mostrar mensajes flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if 'error' in category else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% if asesorias %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tema</th>
+                                <th>Solicitante</th>
+                                <th>Fecha</th>
+                                <th>Duración (horas)</th>
+                                <th>Tutor</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for asesoria in asesorias %}
+                            <tr>
+                                <td><strong>{{ asesoria.tema }}</strong></td>
+                                <td>{{ asesoria.solicitante_nombre }} {{ asesoria.solicitante_apellido }}</td>
+                                <td>{{ asesoria.fecha.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ asesoria.duracion }} horas</td>
+                                <td>
+                                    {% if asesoria.tutor_nombre %}
+                                        {{ asesoria.tutor_nombre }} {{ asesoria.tutor_apellido }}
+                                    {% else %}
+                                        <span class="text-muted">Sin asignar</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/asesorias/ver/{{ asesoria.id }}" class="btn btn-info btn-sm">Ver</a>
+                                    
+                                    <!-- El enlace Editar aparece si el usuario conectado creó la asesoría -->
+                                    {% if asesoria.user_id == session.user_id %}
+                                        <a href="/asesorias/editar/{{ asesoria.id }}" class="btn btn-warning btn-sm">Editar</a>
+                                        <a href="/asesorias/eliminar/{{ asesoria.id }}" 
+                                           class="btn btn-danger btn-sm" 
+                                           onclick="return confirm('¿Estás seguro de eliminar esta asesoría?')">Borrar</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted">No hay asesorías programadas</p>
+                    <a href="/asesorias/nueva" class="btn btn-primary">Crear primera asesoría</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
